@@ -27,11 +27,11 @@ dollars AS (
 	INNER JOIN salaries ss
 	ON pp.playerid = ss.playerid
 )
-SELECT vandy.playerid, vandy.namefirst, vandy.namelast, SUM(dollars.salary) AS total_salary_earned
+SELECT vandy.namefirst || ' ' || vandy.namelast AS name, SUM(dollars.salary)::NUMERIC::MONEY AS total_salary_earned
 FROM vandy
 INNER JOIN dollars
 ON vandy.playerid = dollars.playerid
-GROUP BY vandy.namefirst, vandy.namelast, vandy.playerid
+GROUP BY name, name
 ORDER BY total_salary_earned DESC
 LIMIT 1;
 
