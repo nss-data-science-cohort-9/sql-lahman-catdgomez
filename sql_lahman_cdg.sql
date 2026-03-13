@@ -43,7 +43,8 @@ LIMIT 1;
 -- Determine the number of putouts made by each of these three groups in 2016.
 
 SELECT SUM(po),
-  CASE WHEN pos IN ('SS', '1B', '2B', '3B') THEN 'Infield'
+  CASE 
+  	  WHEN pos IN ('SS', '1B', '2B', '3B') THEN 'Infield'
 	  WHEN pos = 'OF' THEN 'Outfield'
 	  WHEN pos = 'P' OR pos = 'C' THEN 'Battery'
 	  ELSE 'neither'
@@ -62,7 +63,10 @@ GROUP BY positions
 
 WITH bins AS (
 	SELECT generate_series(1920, 2026, 10) AS decade)	
-SELECT round(AVG(b.SO * 1.0/b.G), 2), decade
+SELECT 
+	ROUND(SUM(b.SO) * 1.0 / SUM(b.G) / 2.0, 2) AS strikeouts_per_game,
+	ROUND(SUM(b.HR) * 1.0 / SUM(b.G) / 2.0, 2) AS homeruns_per_game, 
+	decade || 's' AS decade
 FROM batting b
 	INNER JOIN bins
 	ON b.yearID >= decade
@@ -70,7 +74,21 @@ FROM batting b
 GROUP BY decade
 ORDER BY decade;
 
-
+-- From Michael Holloway
+WITH decades AS (
+SELECT *
+FROM generate_series(1920, 2016, 10) AS decade_start
+)
+SELECT
+decade_start || 's' AS decade,
+ROUND(SUM(so) * 1.0 / (SUM(g) / 2.0), 2) AS so_per_game,
+ROUND(SUM(hr) * 1.0 / (SUM(g) / 2.0), 2) AS hr_per_game
+FROM teams t
+INNER JOIN decades d
+ON t.yearid BETWEEN d.decade_start AND d.decade_start + 9
+WHERE yearid >= 1920
+GROUP BY decade
+ORDER BY decade;
 
 -- 4. Find the player who had the most success stealing bases in 2016, where success is measured 
 -- as the percentage of stolen base attempts which are successful. 
