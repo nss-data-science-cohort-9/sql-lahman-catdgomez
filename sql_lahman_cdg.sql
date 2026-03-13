@@ -60,7 +60,15 @@ GROUP BY positions
 -- If you want to see an example of this in action, check out this DataCamp video: 
 -- https://campus.datacamp.com/courses/exploratory-data-analysis-in-sql/summarizing-and-aggregating-numeric-data?ex=6)
 
-
+WITH bins AS (
+	SELECT generate_series(1920, 2026, 10) AS decade)	
+SELECT round(AVG(b.SO * 1.0/b.G), 2), decade
+FROM batting b
+	INNER JOIN bins
+	ON b.yearID >= decade
+	AND b.yearID < decade + 10
+GROUP BY decade
+ORDER BY decade;
 
 
 
@@ -75,7 +83,7 @@ SELECT pp.playerid,
 	pp.namelast, 
 	SUM(b.SB) AS successful_base_steal, 
 	SUM(b.SB + b.CS) AS number_of_attempts, 
-	SUM(round(b.SB* 1.0/(b.SB + b.CS), 2)) AS stolen_base_percentage, 
+	SUM(round(b.SB * 1.0/(b.SB + b.CS), 2)) AS stolen_base_percentage, 
 	SUM(b.CS)
 FROM people pp
 INNER JOIN batting b
